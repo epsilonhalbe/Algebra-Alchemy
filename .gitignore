@@ -1,0 +1,6 @@
+*.hi
+*.o
+Algebra-Alchemy
+report.html
+dist/*
+old/*

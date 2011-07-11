@@ -1,0 +1,11 @@
+the project of algebra alchemy
+	Data ExprTree
+		eval
+		read expressions like ((x + 4) * 10
+		show - make sexy
+		commute - according to rules
+		check treeishness
+		equality
+		simplify
+		append/insert
+
