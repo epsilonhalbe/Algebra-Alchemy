@@ -7,16 +7,16 @@ type Label = Rational
 --   cheaply - by subtracting half the denominator on the left branch and adding
 --   on the right branch respectively.
 
-data Fun = Add|Sub|Mul|Div {- Pow-} deriving (Eq, Ord)
+data Fun = Add|Sub|Mul|Div {- Pow -}  deriving (Eq, Ord)
 -- ^ The Fun(ction) datatype will represent - the function in a Node of the
 --   @ExprTree@ expression tree
 
 instance Show Fun where
-    show Add = "+"
-    show Sub = "-"
-    show Mul = "*"
-    show Div = "/"
---  show Pow = "^"
+   show Add = "+"
+   show Sub = "-"
+   show Mul = "*"
+   show Div = "/"
+-- show Pow = "^"
 
 instance Read Fun where
     readsPrec _ s = _readsFun s
@@ -27,6 +27,8 @@ _readsFun ('+':s) = [(Add,s)]
 _readsFun ('-':s) = [(Sub,s)]
 _readsFun ('*':s) = [(Mul,s)]
 _readsFun ('/':s) = [(Div,s)]
+_readsFun ( _ :s) = error "none of the functions +-/*"
+-- _readsFun [] = [(Pow, "")]
 -- _readsFun ('^':s) = [(Pow,s)]
 
 
@@ -82,13 +84,12 @@ instance (Read a) => Read (ExprTree a) where
 
 _readsExprTree :: (Read a) => ReadS (ExprTree a)
 -- ^ internal helper function to create the read instance on @ExprTree@
-_readsExprTree t = [ (Node (0%1) f lb rb, tt) | ("(", t1) <- lex t,
+_readsExprTree t = [ (Node (0%1) (read f::Fun) lb rb, tt) | ("(", t1) <- lex t,
                                                 (lb , t2) <- _readsExprTree t1,
-                                                (f  , t3) <- _readsFun t2,
+                                                ( f , t3) <- lex t2,
                                                 (rb , t4) <- _readsExprTree t3,
                                                 (")", tt) <- lex t4]
-                ++
-                   [ (Leaf (0%1) v, tt)       | (v  , tt) <- reads t]
+                ++ [ (Leaf (0%1) v, tt)       | (v  , tt) <- reads t]
 
 class Eval e where
     eval ::  e -> Rational
