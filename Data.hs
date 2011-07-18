@@ -7,7 +7,7 @@ type Label = Rational
 --   cheaply - by subtracting half the denominator on the left branch and adding
 --   on the right branch respectively.
 
-data Fun = Add|Sub|Mul|Div {- Pow -}  deriving (Eq, Ord)
+data Fun = Add|Sub|Mul|Div|Pow   deriving (Eq, Ord)
 -- ^ The Fun(ction) datatype will represent - the function in a Node of the
 --   @ExprTree@ expression tree
 
@@ -17,6 +17,7 @@ instance Show Fun where
    show Mul = "*"
    show Div = "/"
 -- show Pow = "^"
+   show _ = error "no Fun to show"
 
 instance Read Fun where
     readsPrec _ s = _readsFun s
@@ -28,7 +29,6 @@ _readsFun ('-':s) = [(Sub,s)]
 _readsFun ('*':s) = [(Mul,s)]
 _readsFun ('/':s) = [(Div,s)]
 _readsFun ( _ :s) = error "none of the functions +-/*"
--- _readsFun [] = [(Pow, "")]
 -- _readsFun ('^':s) = [(Pow,s)]
 
 
@@ -36,7 +36,7 @@ data Side = L| R deriving (Eq, Ord, Show)
 -- ^ Denotes the side a branch will get inserted
 
 
-data Symbol = Symbol (Rational, Algebraic) deriving (Show, Read)
+data Symbol = Symbol (Rational, Algebraic) deriving (Show)
 -- ^ the Symbol datatype is - well for symbolic calculations
 
 
