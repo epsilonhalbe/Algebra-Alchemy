@@ -1,5 +1,17 @@
-module Data
-        where
+-- | all datatypes for the algebraic trees and transformation the backstage stuff
+module Data (
+    -- * Classes
+    Eval,
+    -- * Types
+    Label,
+    Fun,
+    Side (L, R),
+    Symbol,
+    Algebraic (Alg),
+    -- * Functors
+    ExprTree (Node, Leaf, lab)
+    )
+    where
 
 import Ratio
 type Label = Rational
@@ -7,7 +19,7 @@ type Label = Rational
 --   cheaply - by subtracting half the denominator on the left branch and adding
 --   on the right branch respectively.
 
-data Fun = Add|Sub|Mul|Div|Pow   deriving (Eq, Ord)
+data Fun = Add|Sub|Mul|Div {- Pow -}   deriving (Eq, Ord)
 -- ^ The Fun(ction) datatype will represent - the function in a Node of the
 --   @ExprTree@ expression tree
 
@@ -17,7 +29,7 @@ instance Show Fun where
    show Mul = "*"
    show Div = "/"
 -- show Pow = "^"
-   show _ = error "no Fun to show"
+-- show _ = error "no Fun to show"
 
 instance Read Fun where
     readsPrec _ s = _readsFun s
@@ -43,7 +55,7 @@ data Symbol = Symbol (Rational, Algebraic) deriving (Show)
 data Algebraic = Alg String deriving (Eq)
 -- ^ the Alg datatype is a helper for reading the String input to make @ExprTree@
 instance Show Algebraic where
-    show (Alg a) = "_"++(show a)++"_"
+    show (Alg a) = "_"++a++"_"
 
 instance Eval Algebraic where
     eval (Alg a) = read a :: Rational
@@ -78,6 +90,10 @@ instance Functor ExprTree where
 instance (Show a) => Show (ExprTree a) where
     show (Leaf l a) = show a
     show (Node l f lb rb ) = "("++(show lb)++"/"++(show f)++(show l)++(show f)++"\\"++(show rb)++")"
+
+instance (Eq a) => Eq (ExprTree a) where
+    (Leaf l1 a) == (Leaf l2 b) = a == b
+    (Node l1 f1 lb1 rb1 ) == (Node l2 f2 lb2 rb2) = (f1 == f2) && (lb1 == lb2) && (rb1 == rb2)
 
 instance (Read a) => Read (ExprTree a) where
     readsPrec _ s = _readsExprTree s
