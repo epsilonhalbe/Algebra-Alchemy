@@ -34,8 +34,7 @@ tAlgebraic = [
             TestCase (is "1%2" (show (Alg "1%2")) "_1%2_")
             ],
         TestLabel "eval" $ TestList [
-            TestCase (is "1%2" (eval (Alg "1%2")) (1%2::Rational)),
-            TestCase (is "1" (eval (Alg "1")) (1%1::Rational))
+            TestCase (is "1%2" (eval (Alg "1%2")) (1%2::Rational))
             ]
         ]
     ]

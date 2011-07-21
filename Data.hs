@@ -99,8 +99,9 @@ instance (Show a) => Show (ExprTree a) where
     show (Node l f lb rb ) = "("++(show lb)++"/"++(show f)++(show l)++(show f)++"\\"++(show rb)++")"
 
 instance (Eq a) => Eq (ExprTree a) where
-    (Leaf l1 a) == (Leaf l2 b) = a == b
+    (Leaf l1 a1) == (Leaf l2 a2) = a1 == a2
     (Node l1 f1 lb1 rb1 ) == (Node l2 f2 lb2 rb2) = (f1 == f2) && (lb1 == lb2) && (rb1 == rb2)
+    _ == _ = False
 
 instance (Read a) => Read (ExprTree a) where
     readsPrec _ s = _readsExprTree s

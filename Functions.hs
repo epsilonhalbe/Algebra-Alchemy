@@ -7,7 +7,9 @@ module Functions (
     relabelAt,
     commutate,
     substitute,
-    ($$)
+   _substitute,
+    ($$),
+    diag
     )
     where
 
@@ -20,7 +22,7 @@ insert :: ExprTree a -> Label -> Fun -> Side -> (ExprTree a) -> (ExprTree a)
 insert shrubbery here withfun onSide toTree
         | l == here = forkWith shrubbery withfun onSide toTree
         | here < l = (Node l f (insert shrubbery here withfun onSide lb) rb)
-        | here > l = (Node l f rb (insert shrubbery here withfun onSide rb))
+        | here > l = (Node l f lb (insert shrubbery here withfun onSide rb))
         | otherwise = error "label out of range"
         where (Node _ f lb rb) = toTree
               l = lab toTree
@@ -51,7 +53,7 @@ commutate e = id e
 
 substitute :: [(Algebraic, Rational)] -> ExprTree Algebraic -> ExprTree Rational
 -- ^ substitutes a whole ExprTree according to a list of substitution rules
-substitute sRule= fmap (_substitute sRule)
+substitute sRule = fmap (_substitute sRule)
 
 _substitute :: [(Algebraic, Rational)] -> Algebraic -> Rational
 -- ^ an internal function to apply a list of substitution rules to given
