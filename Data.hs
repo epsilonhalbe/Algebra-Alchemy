@@ -1,10 +1,13 @@
 -- | all datatypes for the algebraic trees and transformation the backstage stuff
 module Data (
     -- * Classes
-    Eval,
+    Eval (eval),
     -- * Types
     Label,
-    Fun,
+    Fun (Add,
+         Sub,
+         Mul,
+         Div),
     Side (L, R),
     Symbol,
     Algebraic (Alg),
@@ -67,7 +70,11 @@ _readsAlg :: ReadS Algebraic
 -- ^ internal helper function to create the read instance on @Alg@
 --   does anyone know how to hide _readsAlg from showing up in the docu - i just
 --   want to have it in the sources.
-_readsAlg v = [(Alg v1, vv) | (v1, vv) <- lex v]
+_readsAlg v = [(Alg (v1++"%"++v2), vv) | (v1,  vv1) <- lex v,
+                                         ("%", vv2) <- lex vv1,
+                                         (v2,  vv ) <- lex vv2 ]
+              ++
+             [(Alg v1, vv) | (v1, vv) <- lex v]
 
 -- | The standard Construction of a tree - with some extra flavour for
 --   expressions

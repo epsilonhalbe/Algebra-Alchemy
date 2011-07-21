@@ -62,10 +62,9 @@ _substitute :: [(Algebraic, Rational)] -> Algebraic -> Rational
 -- >>> _substitute [(Alg "x2",2%1)] Alg "x1"
 -- Alg "x2"
 
-_substitute sRule (Alg v) | '%' `elem` v = c%d
+_substitute sRule (Alg v) | ('%' `elem` v) = read v::Rational
                           | otherwise    = assert (length _sRule == 1) (snd (head _sRule))
                           where _sRule = filter (isSubstitute (Alg v)) sRule
-                                (c,d) = diag (\x->read x::Integer) $$ break (=='%') v
 
 isSubstitute :: Algebraic -> (Algebraic,Rational) -> Bool
 -- ^ checks if a given Algebraic expression can be substituted by Rational
