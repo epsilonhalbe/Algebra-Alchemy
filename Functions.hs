@@ -16,6 +16,7 @@ module Functions (
 import Data
 import Ratio
 import Control.Exception (assert)
+import Data.Char (isDigit)
 
 insert :: ExprTree a -> Label -> Fun -> Side -> (ExprTree a) -> (ExprTree a)
 -- ^ guess what - inserts a tree at label on given side into given tree
@@ -81,3 +82,24 @@ diag :: a -> (a,a)
 -- ^ duplicates a value to a pair
 diag x = (x,x)
 
+foldTree :: ExprTree Rational -> Rational
+-- ^ folds Rational Trees - to get one Rational number
+foldTree (Leaf l a) = a
+foldTree (Node lab Add l r) = (foldTree l) + (foldTree r)
+foldTree (Node lab Sub l r) = (foldTree l) - (foldTree r)
+foldTree (Node lab Mul l r) = (foldTree l) * (foldTree r)
+foldTree (Node lab Div l r) = (foldTree l) / (foldTree r)
+
+scale :: ExprTree Rational -> ExprTree Rational -> Ordering
+scale t1 t2 = compare (foldTree t1) (foldTree t2)
+
+simplify :: ExprTree Symbol -> ExprTree Symbol
+simplify (Leaf lab s) = (Leaf lab s)
+simplify (Node lab Add (Leaf lab1 (Symbol (a1,b1))) (Leaf lab2 (Symbol (a2,b2))))
+        | (not $ isVariable b1) && (not $ isVariable b2) = Leaf (0%1) s
+        where s = Symbol (Just b , Alg (show b))
+              b = (eval b1) + (eval b2)
+
+isVariable :: Algebraic -> Bool
+-- ^ well checks wether an algebraic expression is a variable or not
+isVariable (Alg (a:aa)) = not (isDigit a)

@@ -9,7 +9,7 @@ module Data (
          Mul,
          Div),
     Side (L, R),
-    Symbol,
+    Symbol(Symbol),
     Algebraic (Alg),
     -- * Functors
     ExprTree (Node, Leaf, lab)
@@ -51,9 +51,8 @@ data Side = L| R deriving (Eq, Ord, Show)
 -- ^ Denotes the side a branch will get inserted
 
 
-data Symbol = Symbol (Rational, Algebraic) deriving (Show)
+data Symbol = Symbol (Maybe Rational, Algebraic) deriving (Show)
 -- ^ the Symbol datatype is - well for symbolic calculations
-
 
 data Algebraic = Alg String deriving (Eq)
 -- ^ the Alg datatype is a helper for reading the String input to make @ExprTree@
