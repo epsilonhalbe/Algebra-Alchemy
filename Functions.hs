@@ -14,92 +14,99 @@ module Functions (
     where
 
 import Data
-import Ratio
+import Data.Ratio
+import Data.Ord (comparing)
 import Control.Exception (assert)
 import Data.Char (isDigit)
 
-insert :: ExprTree a -> Label -> Fun -> Side -> (ExprTree a) -> (ExprTree a)
+insert :: ExprTree a -> Label -> Fun -> Side -> ExprTree a -> ExprTree a
 -- ^ guess what - inserts a tree at label on given side into given tree
 insert shrubbery here withfun onSide toTree
         | l == here = forkWith shrubbery withfun onSide toTree
-        | here < l = (Node l f (insert shrubbery here withfun onSide lb) rb)
-        | here > l = (Node l f lb (insert shrubbery here withfun onSide rb))
+        | here < l = Node l f (insert shrubbery here withfun onSide lb) rb
+        | here > l = Node l f lb (insert shrubbery here withfun onSide rb)
         | otherwise = error "label out of range"
         where (Node _ f lb rb) = toTree
               l = lab toTree
 
-forkWith :: (ExprTree a) -> Fun -> Side -> (ExprTree a)-> (ExprTree a)
+forkWith :: ExprTree a -> Fun -> Side -> ExprTree a -> ExprTree a
 -- ^ Just an insert on top level
 forkWith branch fun L trunk = relabelAt l (Node l fun branch trunk)
                              where l = lab trunk
 forkWith branch fun R trunk = relabelAt l (Node l fun trunk branch)
                              where l = lab trunk
 
-relabel :: (ExprTree a) -> (ExprTree a)
+relabel :: ExprTree a -> ExprTree a
 -- ^ relabels a tree on top level
-relabel = relabelAt (1%1)
+relabel = relabelAt (1 % 1)
 
-relabelAt :: Label -> (ExprTree a) -> (ExprTree a)
+relabelAt :: Label -> ExprTree a -> ExprTree a
 -- ^ relabels a tree startin on a given level
-relabelAt init (Node l fun lb rb) = (Node init fun (relabelAt (init - (1%(2*d))) lb)
-                                                 (relabelAt (init + (1%(2*d))) rb))
-                                where d = denominator init
+relabelAt init (Node l fun lb rb) = Node init fun
+                                   (relabelAt (init - (1 % (2 * d))) lb)
+                                   (relabelAt (init + (1 % (2 * d))) rb)
+                                  where d = denominator init
 
-relabelAt init (Leaf l v) = (Leaf init v)
+relabelAt init (Leaf l v) = Leaf init v
 
-commutate :: (ExprTree a) -> (ExprTree a)
+commutate :: ExprTree a -> ExprTree a
 -- ^ should be commutation laws for addition and multiplication
 commutate (Node l fun lb rb) = relabelAt l (Node l fun rb lb)
-commutate e = id e
+commutate e = e
 
 substitute :: [(Algebraic, Rational)] -> ExprTree Algebraic -> ExprTree Rational
 -- ^ substitutes a whole ExprTree according to a list of substitution rules
-substitute sRule = fmap (_substitute sRule)
+substitute sRule = fmap ( _substitute sRule)
 
-_substitute :: [(Algebraic, Rational)] -> Algebraic -> Rational
--- ^ an internal function to apply a list of substitution rules to given
--- variables
---
--- >>> _substitute [(Alg "x1",2%1)] Alg "x1"
--- 2%1
--- >>> _substitute [(Alg "x2",2%1)] Alg "x1"
--- Alg "x2"
+_substitute :: [( Algebraic, Rational)] -> Algebraic -> Rational
+{- ^ an internal function to apply a list of substitution rules to given
+     variables
 
-_substitute sRule (Alg v) | ('%' `elem` v) = read v::Rational
-                          | otherwise    = assert (length _sRule == 1) (snd (head _sRule))
-                          where _sRule = filter (isSubstitute (Alg v)) sRule
+   >>> _substitute [(Alg "x1",2%1)] Alg "x1"
+   2%1
+   >>> _substitute [(Alg "x2",2%1)] Alg "x1"
+   Alg "x2" -}
 
-isSubstitute :: Algebraic -> (Algebraic,Rational) -> Bool
+_substitute sRule (Alg v)
+                   | '%' ∈ v = read v :: Rational
+                   | otherwise = assert (length _sRule == 1) (snd (head _sRule))
+                   where _sRule = filter (isSubstitute (Alg v)) sRule
+
+isSubstitute :: Algebraic -> (Algebraic, Rational) -> Bool
 -- ^ checks if a given Algebraic expression can be substituted by Rational
---
 isSubstitute v x = fst x == v
 
-($$):: ((a1->a2),(b1->b2))->(a1,b1) -> (a2,b2)
+($$) :: (a1 -> a2, b1 -> b2) -> (a1, b1) -> (a2, b2)
 -- ^ applicates a pair of functions to a pair of values
-(f1,f2) $$ (x,y) = (f1 x, f2 y)
+(f1, f2) $$ (x, y) = (f1 x, f2 y)
 
-diag :: a -> (a,a)
+diag :: a -> (a, a)
 -- ^ duplicates a value to a pair
-diag x = (x,x)
+diag x = (x, x)
 
 foldTree :: ExprTree Rational -> Rational
 -- ^ folds Rational Trees - to get one Rational number
 foldTree (Leaf l a) = a
-foldTree (Node lab Add l r) = (foldTree l) + (foldTree r)
-foldTree (Node lab Sub l r) = (foldTree l) - (foldTree r)
-foldTree (Node lab Mul l r) = (foldTree l) * (foldTree r)
-foldTree (Node lab Div l r) = (foldTree l) / (foldTree r)
+foldTree (Node lab Add l r) = foldTree l + foldTree r
+foldTree (Node lab Sub l r) = foldTree l - foldTree r
+foldTree (Node lab Mul l r) = foldTree l * foldTree r
+foldTree (Node lab Div l r) = foldTree l / foldTree r
 
 scale :: ExprTree Rational -> ExprTree Rational -> Ordering
-scale t1 t2 = compare (foldTree t1) (foldTree t2)
+scale = Data.Ord.comparing foldTree
 
 simplify :: ExprTree Symbol -> ExprTree Symbol
-simplify (Leaf lab s) = (Leaf lab s)
-simplify (Node lab Add (Leaf lab1 (Symbol (a1,b1))) (Leaf lab2 (Symbol (a2,b2))))
-        | (not $ isVariable b1) && (not $ isVariable b2) = Leaf (0%1) s
-        where s = Symbol (Just b , Alg (show b))
-              b = (eval b1) + (eval b2)
+simplify (Leaf lab s) = Leaf lab s
+simplify (Node lab Add (Leaf lab1 (Symbol (a1, b1)))
+                       (Leaf lab2 (Symbol (a2, b2))))
+        | not (isVariable b1) && not (isVariable b2) = Leaf (0 % 1) s
+        where s = Symbol (Just b, Alg (show b))
+              b = eval b1 + eval b2
 
 isVariable :: Algebraic -> Bool
 -- ^ well checks wether an algebraic expression is a variable or not
-isVariable (Alg (a:aa)) = not (isDigit a)
+isVariable (Alg (a : aa)) = not (isDigit a)
+
+
+(∈) :: Eq a => a -> [a] -> Bool
+(∈) = elem
