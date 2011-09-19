@@ -8,12 +8,6 @@ module Functions (
     commutate,
     substitute,
    _substitute,
-    isSubstitute,
-    varToSymbol,
-    scale,
-    simplify,
-    isNumber,
-    isVariable,
     ($$),
     diag
     )
@@ -22,7 +16,6 @@ module Functions (
 import Data
 import Ratio
 import Control.Exception (assert)
-import Control.Applicative (liftA2)
 import Data.Char (isDigit)
 
 insert :: ExprTree a -> Label -> Fun -> Side -> (ExprTree a) -> (ExprTree a)
@@ -78,20 +71,8 @@ _substitute sRule (Alg v) | ('%' `elem` v) = read v::Rational
 
 isSubstitute :: Algebraic -> (Algebraic,Rational) -> Bool
 -- ^ checks if a given Algebraic expression can be substituted by Rational
-
+--
 isSubstitute v x = fst x == v
-
-varToSymbol :: Algebraic -> [(Algebraic, Rational)] -> Symbol
--- ^ changes variables to symbols - this function should be applied after having
--- made all substitutions before - danger danger danger danger !!!
-varToSymbol a srules | a `elem` keys = Symbol (Just value, Alg (show value))
-                     | isNumber a    = Symbol (Just rat,   a)
-                     | otherwise     = Symbol (Nothing   , a)
-                     where Alg a_ = a
-                           rat = read a_::Rational
-                           keys = map fst srules
-                           aValues = map snd $ filter (\x -> fst x == a) srules
-                           (value:[]) = aValues -- with pattern matching ??
 
 ($$):: ((a1->a2),(b1->b2))->(a1,b1) -> (a2,b2)
 -- ^ applicates a pair of functions to a pair of values
@@ -110,23 +91,15 @@ foldTree (Node lab Mul l r) = (foldTree l) * (foldTree r)
 foldTree (Node lab Div l r) = (foldTree l) / (foldTree r)
 
 scale :: ExprTree Rational -> ExprTree Rational -> Ordering
--- ^ should work like a set of scales for two ExprTree Rational
 scale t1 t2 = compare (foldTree t1) (foldTree t2)
 
 simplify :: ExprTree Symbol -> ExprTree Symbol
--- ^ no idea if it works - should simplify symbol trees - haaard work !!
 simplify (Leaf lab s) = (Leaf lab s)
-simplify (Node lab Add (Leaf lab1 (Symbol (a1,b1)))
-                       (Leaf lab2 (Symbol (a2,b2))))
+simplify (Node lab Add (Leaf lab1 (Symbol (a1,b1))) (Leaf lab2 (Symbol (a2,b2))))
         | (not $ isVariable b1) && (not $ isVariable b2) = Leaf (0%1) s
-        where s = Symbol (liftA2 (+) a1 a2, Alg (show b))
+        where s = Symbol (Just b , Alg (show b))
               b = (eval b1) + (eval b2)
 
 isVariable :: Algebraic -> Bool
 -- ^ well checks wether an algebraic expression is a variable or not
--- (variables start with letters
-isVariable = not . isNumber
-
-isNumber :: Algebraic -> Bool
--- ^ guess again - checks if an @Algebraic@ is actually a number
-isNumber (Alg (a:aa)) =  (isDigit a)
+isVariable (Alg (a:aa)) = not (isDigit a)
