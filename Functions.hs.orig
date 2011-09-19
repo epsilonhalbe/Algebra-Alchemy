@@ -10,7 +10,6 @@ module Functions (
    _substitute,
     isSubstitute,
     varToSymbol,
-    scale,
     simplify,
     isNumber,
     isVariable,
@@ -82,10 +81,9 @@ _substitute sRule (Alg v)
 
 isSubstitute :: Algebraic -> (Algebraic, Rational) -> Bool
 -- ^ checks if a given Algebraic expression can be substituted by Rational
-<<<<<<< HEAD
-
 isSubstitute v x = fst x == v
 
+<<<<<<< HEAD
 varToSymbol :: Algebraic -> [(Algebraic, Rational)] -> Symbol
 -- ^ changes variables to symbols - this function should be applied after having
 -- made all substitutions before - danger danger danger danger !!!
@@ -98,12 +96,10 @@ varToSymbol a srules | a `elem` keys = Symbol (Just value, Alg (show value))
                            aValues = map snd $ filter (\x -> fst x == a) srules
                            (value:[]) = aValues -- with pattern matching ??
 
-($$):: ((a1->a2),(b1->b2))->(a1,b1) -> (a2,b2)
-=======
-isSubstitute v x = fst x == v
 
-($$) :: (a1 -> a2, b1 -> b2) -> (a1, b1) -> (a2, b2)
+=======
 >>>>>>> f50b093034b7eff431bca0dd2f8d2e0320a3aab2
+($$) :: (a1 -> a2, b1 -> b2) -> (a1, b1) -> (a2, b2)
 -- ^ applicates a pair of functions to a pair of values
 (f1, f2) $$ (x, y) = (f1 x, f2 y)
 
@@ -118,11 +114,7 @@ foldTree (Node lab Add l r) = foldTree l + foldTree r
 foldTree (Node lab Sub l r) = foldTree l - foldTree r
 foldTree (Node lab Mul l r) = foldTree l * foldTree r
 foldTree (Node lab Div l r) = foldTree l / foldTree r
-
 <<<<<<< HEAD
-scale :: ExprTree Rational -> ExprTree Rational -> Ordering
--- ^ should work like a set of scales for two ExprTree Rational
-scale t1 t2 = compare (foldTree t1) (foldTree t2)
 
 simplify :: ExprTree Symbol -> ExprTree Symbol
 -- ^ no idea if it works - should simplify symbol trees - haaard work !!
@@ -141,7 +133,12 @@ isVariable = not . isNumber
 isNumber :: Algebraic -> Bool
 -- ^ guess again - checks if an @Algebraic@ is actually a number
 isNumber (Alg (a:aa)) =  (isDigit a)
+
+scales :: ExprTree Rational -> ExprTree Rational -> Ordering
+-- ^ like the antque ones, /scales/ measure /GT/,/LQ/ or /EQ/
+scales = Data.Ord.comparing foldTree
 =======
+
 scales :: ExprTree Rational -> ExprTree Rational -> Ordering
 -- ^ like the antque ones, /scales/ measure /GT/,/LQ/ or /EQ/
 scales = Data.Ord.comparing foldTree
@@ -160,7 +157,7 @@ isVariable :: Algebraic -> Bool
 -- ^ well checks wether an algebraic expression is a variable or not
 isVariable (Alg (a : aa)) = not (isDigit a)
 
+>>>>>>> f50b093034b7eff431bca0dd2f8d2e0320a3aab2
 
 (∈) :: Eq a => a -> [a] -> Bool
 (∈) = elem
->>>>>>> f50b093034b7eff431bca0dd2f8d2e0320a3aab2
