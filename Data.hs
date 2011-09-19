@@ -18,6 +18,7 @@ module Data (
     where
 
 import Data.Ratio
+
 type Label = Rational
 {- ^ Labels are chosen to be Rational so i can renumber and insert branches very
      cheaply - by subtracting half the denominator on the left branch and adding
@@ -28,12 +29,12 @@ data Fun = Add | Sub | Mul | Div {- Pow -} deriving (Eq, Ord)
      @ExprTree@ expression tree -}
 
 instance Show Fun where
-   show Add = "+"
-   show Sub = "-"
-   show Mul = "*"
-   show Div = "/"
-{- show Pow = "^"
-   show _ = error "no Fun to show" -}
+    show Add = "+"
+    show Sub = "-"
+    show Mul = "*"
+    show Div = "/"
+{-  show Pow = "^"
+    show _ = error "no Fun to show" -}
 
 instance Read Fun where
     readsPrec _ = _readsFun
@@ -55,7 +56,7 @@ data Symbol = Symbol (Maybe Rational, Algebraic) deriving (Show)
 
 data Algebraic = Alg String deriving (Eq)
 {- ^ the Alg datatype is a helper for reading the String input
-      to make @ExprTree@ -}
+     to make @ExprTree@ -}
 instance Show Algebraic where
     show (Alg a) = "_" ++ a ++ "_"
 
@@ -75,8 +76,7 @@ _readsAlg v = [(Alg (v1 ++ "%" ++ v2), vv) | (v1,  vv1) <- lex v,
               [(Alg v1, vv)                | (v1,  vv ) <- lex v]
 
 {- | The standard Construction of a tree - with some extra flavour for
-      expressions -}
-
+     expressions -}
 
 data ExprTree a
   -- | Leaf has a label and a value -

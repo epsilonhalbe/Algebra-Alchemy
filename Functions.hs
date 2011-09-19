@@ -9,7 +9,8 @@ module Functions (
     substitute,
    _substitute,
     ($$),
-    diag
+    diag,
+    scales
     )
     where
 
@@ -92,10 +93,13 @@ foldTree (Node lab Sub l r) = foldTree l - foldTree r
 foldTree (Node lab Mul l r) = foldTree l * foldTree r
 foldTree (Node lab Div l r) = foldTree l / foldTree r
 
-scale :: ExprTree Rational -> ExprTree Rational -> Ordering
-scale = Data.Ord.comparing foldTree
+scales :: ExprTree Rational -> ExprTree Rational -> Ordering
+-- ^ like the antque ones, /scales/ measure /GT/,/LQ/ or /EQ/
+scales = Data.Ord.comparing foldTree
 
 simplify :: ExprTree Symbol -> ExprTree Symbol
+{- ^ should simplify a tree of symbols - but there has to be more brain put into
+     this function -}
 simplify (Leaf lab s) = Leaf lab s
 simplify (Node lab Add (Leaf lab1 (Symbol (a1, b1)))
                        (Leaf lab2 (Symbol (a2, b2))))
