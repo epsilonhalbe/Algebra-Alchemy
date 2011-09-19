@@ -2,7 +2,7 @@
 -- options, see
 -- http://www.haskell.org/cabal/release/cabal-latest/doc/users-guide/authors.html#pkg-descr.
 -- The name of the package.
-Name:                Algebra-Alchemy
+Name:                AlgebraAlchemy
 
 -- The package version. See the Haskell package versioning policy
 -- (http://www.haskell.org/haskellwiki/Package_versioning_policy) for
@@ -13,19 +13,19 @@ Version:             0.1
 Synopsis:            An educational game for algebraic transformations
 
 -- A longer description of the package.
-Description:         An educational game settling in the age of wizards and
-                     alchemists, the aim of the player is to mix potions by
-                     generating the right amounts of 'elements' by doing
-                     algebraic transformations by drag'n'drop (so there shall
-                     be a sexy sexy gui) and buying them in
-                     gold - or aurum then it was called.
-                     Maybe there will be timer, toplist. and -tada- networking
-                     and playing on-line.
-                     PvP mode should include making extra 'elements' and putrify
-                     opponent's potion.
+-- Description:         An educational game settling in the age of wizards and
+--                      alchemists, the aim of the player is to mix potions by
+--                      generating the right amounts of 'elements' by doing
+--                      algebraic transformations by drag'n'drop (so there shall
+--                      be a sexy sexy gui) and buying them in
+--                      gold - or aurum then it was called.
+--                      Maybe there will be timer, toplist. and -tada- networking
+--                      and playing on-line.
+--                      PvP mode should include making extra 'elements' and putrify
+--                      opponent's potion.
 
 -- URL for the project homepage or repository.
-Homepage:            github.com/epsilonhalbe
+-- Homepage:            github.com/epsilonhalbe
 
 -- The license under which the package is released.
 License:             BSD3
@@ -55,16 +55,10 @@ Build-type:          Simple
 Cabal-version:       >=1.2
 
 
-Executable Algebra-Alchemy
-  -- .hs or .lhs file containing the Main module.
-Main-is:             Algebra-Alchemy
-  
+Library
+  -- Modules exoprted by the library.
+  Exposed-modules:     Data,
+                       Functions,
+                       Polynomial
   -- Packages needed in order to build this package.
-  -- Build-depends:       
-  
-  -- Modules not exported by this package.
-  -- Other-modules:       
-  
-  -- Extra tools (e.g. alex, hsc2hs, ...) needed to build the source.
-  -- Build-tools:         
-  
+  Build-depends:       base
